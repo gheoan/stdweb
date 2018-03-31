@@ -72,6 +72,27 @@ pub struct ImageData(Reference);
 #[reference(instance_of = "ImageBitmap")]
 pub struct ImageBitmap(Reference);
 
+pub struct ImageBitmapCropOptions {
+  sx: i32,
+  sy: i32,
+  sw: i32,
+  sh: i32,
+}
+
+enum ImageOrientation { None, FlipY }
+enum PremultiplyAlpha { None, Premultiply, Default }
+enum ColorSpaceConversion { None, Default }
+enum ResizeQuality { Pixelated, Low, Medium, High }
+
+pub struct ImageBitmapOptions {
+    image_orientation: ImageOrientation,
+    premultiply_alpha: PremultiplyAlpha,
+    color_space_conversion: ColorSpaceConversion,
+    resize_width: u32,
+    resize_height: u32,
+    resize_quality: ResizeQuality,
+}
+
 /// The TextMetrics struct represents the dimension of a text in the canvas, as created by the CanvasRenderingContext2D.measureText() method.
 /// 
 /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics)
