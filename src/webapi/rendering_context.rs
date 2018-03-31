@@ -1,9 +1,11 @@
 use webcore::value::{Reference, ConversionError};
 use webcore::try_from::{TryFrom, TryInto};
 use webcore::value::{Undefined, Null, Value};
+use webcore::unsafe_typed_array::UnsafeTypedArray;
 use webapi::html_elements::{CanvasElement, ImageElement};
 use webapi::html_element::IHtmlElement;
 use webapi::dom_exception::{SyntaxError, IndexSizeError, InvalidStateError, TypeError, SecurityError, NotSupportedError};
+use private::TODO;
 
 /// Trait implemented by rendering contexts which can be obtained from a canvas.
 pub trait RenderingContext {
@@ -337,6 +339,27 @@ impl CanvasGradient {
 }
 
 impl ImageData {
+    /// The new_empty() constructor returns a newly instantiated ImageData object build from the
+    /// typed array given and having the specified width and height.
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData)
+    // https://html.spec.whatwg.org/#2dcontext:dom-imagedata
+    pub fn new_empty(sw: u32, sh: u32) -> Result<Self, TODO> {
+      Ok(js!( return new ImageData(@{sw}, @{sh}); ).try_into().unwrap())
+    }
+
+    /// The new() constructor returns a newly instantiated ImageData object build from the
+    /// typed array given and having the specified width and height.
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData)
+    // https://html.spec.whatwg.org/#2dcontext:dom-imagedata-2
+    pub fn new(data: &[u8], sw: u32, sh: Option<u32>) -> Result<Self, TODO> {
+      let data = unsafe { UnsafeTypedArray::new(data) };
+      let result = if let Some(sh) = sh {
+        js!( return new ImageData(new Uint8ClampedArray(@{data}), @{sw}, @{sh}); )
+      } else {
+        js!( return new ImageData(new Uint8ClampedArray(@{data}), @{sw}); )
+      };
+      Ok(result.try_into().unwrap())
+    }
 
     /*
     /// Returns a Uint8ClampedArray representing a one-dimensional array containing the data in the RGBA order, 
