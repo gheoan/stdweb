@@ -5,7 +5,7 @@ use webapi::window_or_worker::IWindowOrWorker;
 use webapi::storage::Storage;
 use webapi::location::Location;
 use webapi::history::History;
-use webapi::rendering_context::{ImageBitmap, ImageBitmapSource};
+use webapi::rendering_context::{ImageBitmap, ImageBitmapSource, ImageBitmapOptions, ImageBitmapCropOptions};
 use webcore::once::Once;
 use webcore::value::Value;
 use webcore::promise_future::PromiseFuture;
@@ -197,7 +197,7 @@ impl Window {
     /// Accepts a variety of different image sources, and returns a PromiseFuture which resolves to an ImageBitmap.
     /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
     // https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope-mixin:dom-createimagebitmap
-    pub fn create_image_bitmap<S>(&self, image: S) -> PromiseFuture<ImageBitmap>
+    pub fn create_image_bitmap<S>(&self, image: S, crop_options: ImageBitmapCropOptions, options: ImageBitmapOptions) -> PromiseFuture<ImageBitmap>
         where S: ImageBitmapSource + JsSerialize {
           return js! ( return @{self}.createImageBitmap(@{image}); ).try_into().unwrap();
     }
