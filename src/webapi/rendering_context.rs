@@ -1,6 +1,6 @@
 use webcore::value::{Reference, ConversionError};
 use webcore::try_from::{TryFrom, TryInto};
-use webcore::value::{Undefined, Value};
+use webcore::value::{Undefined, Null, Value};
 use webapi::html_elements::{CanvasElement, ImageElement};
 use webapi::html_element::IHtmlElement;
 use webapi::dom_exception::{SyntaxError, IndexSizeError, InvalidStateError, TypeError, SecurityError, NotSupportedError};
@@ -13,6 +13,9 @@ pub trait RenderingContext {
     fn from_canvas(canvas: &CanvasElement) -> Result<Self, Self::Error> where Self: Sized;
 }
 
+/// Trait implemented by images which can be used to create a ImageBitmap.
+pub trait ImageBitmapSource {}
+
 /// Used for drawing rectangles, text, images and other objects onto the canvas element.
 ///
 /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -20,6 +23,14 @@ pub trait RenderingContext {
 #[derive(Clone, Debug, PartialEq, Eq, ReferenceType)]
 #[reference(instance_of = "CanvasRenderingContext2D")]
 pub struct CanvasRenderingContext2d(Reference);
+
+/// Used for replacing the canvas element's contents with an ImageBitmap.
+///
+/// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext)
+// https://html.spec.whatwg.org/#imagebitmaprenderingcontext
+#[derive(Clone, Debug, Eq, PartialEq, ReferenceType)]
+#[reference(instance_of = "ImageBitmapRenderingContext")]
+pub struct ImageBitmapRenderingContext(Reference);
 
 /// The CanvasGradient struct represents an opaque object describing a gradient. 
 /// It is returned by the methods CanvasRenderingContext2D.createLinearGradient() or 
@@ -51,6 +62,13 @@ pub struct CanvasPattern(Reference);
 #[derive(Clone, Debug, ReferenceType)]
 #[reference(instance_of = "ImageData")]
 pub struct ImageData(Reference);
+
+/// Represents a bitmap image which can be drawn to a CanvasElement without undue latency.
+/// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap)
+// https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#imagebitmap
+#[derive(Clone, Debug, Eq, PartialEq, ReferenceType)]
+#[reference(instance_of = "ImageBitmap")]
+pub struct ImageBitmap(Reference);
 
 /// The TextMetrics struct represents the dimension of a text in the canvas, as created by the CanvasRenderingContext2D.measureText() method.
 /// 
@@ -292,6 +310,17 @@ impl RenderingContext for CanvasRenderingContext2d {
     }
 }
 
+impl RenderingContext for ImageBitmapRenderingContext {
+    type Error = ConversionError;
+    fn from_canvas(canvas: &CanvasElement) -> Result<Self, ConversionError> {
+        js!(
+            return @{canvas}.getContext("bitmaprenderer");
+        ).try_into()
+    }
+}
+
+impl ImageBitmapSource for ImageData {}
+
 impl CanvasGradient {
 
     /// Adds a new stop, defined by an offset and a color, to the gradient. If the offset is 
@@ -340,6 +369,28 @@ impl ImageData {
     pub fn get_width(&self) -> u32 {
         js! (
             return @{&self.0}.width;
+        ).try_into().unwrap()
+    }
+}
+
+impl ImageBitmap {
+    /// Returns the ImageBitmap width in CSS pixels.
+    ///
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap/width)
+    // https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#images-2:dom-imagebitmap-width
+    pub fn get_width(&self) -> u32 {
+        js! (
+            return @{&self.0}.width;
+        ).try_into().unwrap()
+    }
+
+    /// Returns the ImageBitmap height in CSS pixels.
+    ///
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap/height)
+    // https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#images-2:dom-imagebitmap-height
+    pub fn get_height(&self) -> u32 {
+        js! (
+            return @{&self.0}.height;
         ).try_into().unwrap()
     }
 }
@@ -1370,6 +1421,28 @@ impl CanvasRenderingContext2d {
     pub fn translate(&self, x: f64, y: f64) {
         js! { @(no_return)
             @{&self.0}.translate(@{x}, @{y});
+        }
+    }
+}
+
+impl ImageBitmapRenderingContext {
+    /// Returns the canvas element that the context is bound to.
+    // https://html.spec.whatwg.org/#the-imagebitmaprenderingcontext-interface:dom-imagebitmaprenderingcontext-canvas
+    pub fn get_canvas(&self) -> CanvasElement {
+        js! (
+            return @{&self.0}.canvas;
+        ).try_into().unwrap()
+    }
+
+    /// Displays the given ImageBitmap in the canvas associated with this rendering context.
+    ///
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext/transferFromImageBitmap)
+    // https://html.spec.whatwg.org/#the-imagebitmaprenderingcontext-interface:dom-imagebitmaprenderingcontext-transferfromimagebitmap
+    pub fn transfer_from_image_bitmap(&self, image_bitmap: Option<ImageBitmap>) {
+        if let Some(image_bitmap) = image_bitmap {
+            js! ( @(no_return) @{&self.0}.transferFromImageBitmap(@{image_bitmap}); );
+        } else {
+            js! ( @(no_return) @{&self.0}.transferFromImageBitmap(@{Null}); );
         }
     }
 }
