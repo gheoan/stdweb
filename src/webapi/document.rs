@@ -4,6 +4,7 @@ use webapi::event_target::{IEventTarget, EventTarget};
 use webapi::node::{INode, Node};
 use webapi::element::Element;
 use webapi::html_element::HtmlElement;
+use webapi::document_fragment::DocumentFragment;
 use webapi::text_node::TextNode;
 use webapi::location::Location;
 use webapi::parent_node::IParentNode;
@@ -34,6 +35,17 @@ pub fn document() -> Document {
 }
 
 impl Document {
+    /// In an HTML document, the Document.createDocumentFragment() method creates a
+    /// new empty DocumentFragment.
+    ///
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/Document/createDocumentFragment)
+    // https://dom.spec.whatwg.org/#ref-for-dom-document-createdocumentfragment
+    pub fn create_document_fragment( &self ) -> DocumentFragment {
+        unsafe {
+            js!( return @{self}.createDocumentFragment(); ).into_reference_unchecked().unwrap()
+        }
+    }
+
     /// In an HTML document, the Document.createElement() method creates the HTML
     /// element specified by `tag`, or an HTMLUnknownElement if `tag` isn't
     /// recognized. In other documents, it creates an element with a null namespace URI.
@@ -70,7 +82,7 @@ impl Document {
         }
     }
 
-    /// Returns the <body> or <frameset> node of the current document, or null if no such element exists.
+    /// Returns the `<body>` or `<frameset>` node of the current document, or null if no such element exists.
     ///
     /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/Document/body)
     // https://html.spec.whatwg.org/#the-document-object:dom-document-body
@@ -82,7 +94,7 @@ impl Document {
         }
     }
 
-    /// Returns the <head> element of the current document. If there are more than one <head>
+    /// Returns the `<head>` element of the current document. If there are more than one `<head>`
     /// elements, the first one is returned.
     ///
     /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/Document/head)
@@ -114,6 +126,19 @@ impl Document {
     pub fn set_title( &self, title: &str ) {
         unsafe {
             js!( @(no_return) @{self}.title = @{title}; );
+        }
+    }
+
+    /// Returns the Element that is the root element of the document (for example, the `<html>`
+    /// element for HTML documents).
+    ///
+    /// [(JavaScript docs)](https://developer.mozilla.org/en-US/docs/Web/API/Document/documentElement)
+    // https://dom.spec.whatwg.org/#ref-for-dom-document-documentelement
+    pub fn document_element( &self ) -> Option< Element > {
+        unsafe {
+            js!(
+                return @{self}.documentElement;
+            ).try_into().unwrap()
         }
     }
 }

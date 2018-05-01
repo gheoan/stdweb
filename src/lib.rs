@@ -135,8 +135,14 @@ extern crate stdweb_internal_macros;
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 pub use stdweb_internal_macros::js_export;
 
-#[cfg(feature = "futures")]
-extern crate futures;
+#[cfg(feature = "futures-support")]
+extern crate futures_core;
+
+#[cfg(feature = "futures-support")]
+extern crate futures_util;
+
+#[cfg(feature = "futures-support")]
+extern crate futures_channel;
 
 #[macro_use]
 extern crate stdweb_derive;
@@ -181,7 +187,7 @@ pub use webcore::discard::DiscardOnDrop;
 pub use webcore::promise::{Promise, DoneHandle};
 
 #[cfg(all(
-    feature = "futures",
+    feature = "futures-support",
     feature = "experimental_features_which_may_break_on_minor_version_bumps"
 ))]
 pub use webcore::promise_future::PromiseFuture;
@@ -213,8 +219,9 @@ pub mod web {
     pub use webapi::date::Date;
     pub use webapi::event_target::{IEventTarget, EventTarget, EventListenerHandle};
     pub use webapi::window::RequestAnimationFrameHandle;
-    pub use webapi::node::{INode, Node, CloneKind};
+    pub use webapi::node::{INode, Node, CloneKind, NodeType};
     pub use webapi::element::{IElement, Element};
+    pub use webapi::document_fragment::DocumentFragment;
     pub use webapi::text_node::TextNode;
     pub use webapi::html_element::{IHtmlElement, HtmlElement, Rect};
     pub use webapi::window_or_worker::IWindowOrWorker;

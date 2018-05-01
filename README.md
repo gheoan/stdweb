@@ -19,6 +19,7 @@ a high degree of interoperability between Rust and JavaScript.
 ## Patrons
 
 This software was brought to you thanks to these wonderful people:
+  * Daniel Norman
   * Ben Berman
   * Stephen Sugden
 
@@ -189,7 +190,57 @@ the native `wasm32-unknown-unknown` which doesn't need Emscripten
 [WebAssembly]: https://en.wikipedia.org/wiki/WebAssembly
 
 ## Changelog
-
+   * `0.4.4`
+      * Fix `docs.rs` (hopefully).
+      * New methods:
+         * `Location::origin`
+         * `Location::protocol`
+         * `Location::host`
+         * `Location::hostname`
+         * `Location::port`
+         * `Location::pathname`
+         * `Location::search`
+      * These now return `SecurityError` in the error case:
+         * `Location::hash`
+         * `Location::href`
+   * `0.4.3`
+      * Objects which cannot be used as keys in a `WeakMap`
+        should be supported now (e.g. some of the WebGL-related objects under Firefox)
+      * New methods:
+         * `Element::get_bounding_client_rect`
+         * `Element::scroll_top`
+         * `Element::scroll_left`
+         * `Window::page_x_offset`
+         * `Window::page_y_offset`
+         * `NodeList::item`
+         * `Document::body`
+         * `Document::head`
+         * `Document::title`
+         * `Document::set_title`
+         * `IMouseEvent::offset_x`
+         * `IMouseEvent::offset_y`
+      * Expose more canvas related types:
+         * `CompositeOperation`
+         * `LineCap`
+         * `LineJoin`
+         * `Repetition`
+         * `TextAlign`
+         * `TextBaseline`
+      * Expose canvas related error types: `AddColorStopError`, `DrawImageError`, `GetImageDataError`
+      * New events:
+         * `MouseOverEvent`
+         * `MouseOutEvent`
+         * `PointerOverEvent`
+         * `PointerEnterEvent`
+         * `PointerDownEvent`
+         * `PointerMoveEvent`
+         * `PointerUpEvent`
+         * `PointerCancelEvent`
+         * `PointerOutEvent`
+         * `PointerLeaveEvent`
+         * `GotPointerCaptureEvent`
+         * `LostPointerCaptureEvent`
+      * New interface for pointer events: `IPointerEvent`
    * `0.4.2`
       * Fixed a leak when deserializing references
       * Fixed `CanvasRenderingContext2d::get_canvas`
