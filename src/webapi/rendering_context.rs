@@ -72,6 +72,7 @@ pub struct ImageData(Reference);
 #[reference(instance_of = "ImageBitmap")]
 pub struct ImageBitmap(Reference);
 
+#[derive(Debug)]
 pub struct ImageBitmapCropOptions {
   sx: i32,
   sy: i32,
@@ -79,11 +80,16 @@ pub struct ImageBitmapCropOptions {
   sh: i32,
 }
 
+#[derive(Debug)]
 enum ImageOrientation { None, FlipY }
+#[derive(Debug)]
 enum PremultiplyAlpha { None, Premultiply, Default }
+#[derive(Debug)]
 enum ColorSpaceConversion { None, Default }
+#[derive(Debug)]
 enum ResizeQuality { Pixelated, Low, Medium, High }
 
+#[derive(Debug)]
 pub struct ImageBitmapOptions {
     image_orientation: ImageOrientation,
     premultiply_alpha: PremultiplyAlpha,
